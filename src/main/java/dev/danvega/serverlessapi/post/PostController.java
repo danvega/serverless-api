@@ -1,12 +1,11 @@
 package dev.danvega.serverlessapi.post;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -17,6 +16,29 @@ public class PostController {
     @GetMapping
     List<Post> findAll() {
         return posts;
+    }
+
+    @GetMapping("/{id}")
+    Optional<Post> findById(@PathVariable Integer id) {
+        return posts.stream().filter(post -> post.id().equals(id)).findFirst();
+    }
+
+    @PostMapping
+    void create(@RequestBody Post post) {
+        posts.add(post);
+    }
+
+    @PutMapping("/{id}")
+    void update(@RequestBody Post post, @PathVariable Integer id) {
+        posts.stream()
+                .filter(p -> p.id().equals(id))
+                .findFirst()
+                .ifPresent(value -> posts.set(posts.indexOf(value),post));
+    }
+
+    @DeleteMapping("/{id}")
+    void delete(@PathVariable Integer id) {
+        posts.removeIf(post -> post.id().equals(id));
     }
 
     @PostConstruct
