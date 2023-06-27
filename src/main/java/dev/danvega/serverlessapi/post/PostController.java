@@ -20,7 +20,11 @@ public class PostController {
 
     @GetMapping("/{id}")
     Optional<Post> findById(@PathVariable Integer id) {
-        return posts.stream().filter(post -> post.id().equals(id)).findFirst();
+        return Optional.ofNullable(posts
+                .stream()
+                .filter(post -> post.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new PostNotFoundException("Post with id: " + id + " not found.")));
     }
 
     @PostMapping
