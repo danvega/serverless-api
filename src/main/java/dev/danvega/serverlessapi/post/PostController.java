@@ -1,6 +1,8 @@
 package dev.danvega.serverlessapi.post;
 
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -11,7 +13,13 @@ import java.util.Optional;
 @RequestMapping("/api/posts")
 public class PostController {
 
+    private final JsonPlaceholderService jsonPlaceholderService;
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
     private List<Post> posts = new ArrayList<>();
+
+    public PostController(JsonPlaceholderService jsonPlaceholderService) {
+        this.jsonPlaceholderService = jsonPlaceholderService;
+    }
 
     @GetMapping
     List<Post> findAll() {
@@ -47,7 +55,10 @@ public class PostController {
 
     @PostConstruct
     private void init() {
-        posts = List.of(new Post(1,"Hello, World!","This is my first blog post."));
+        if(posts.isEmpty()) {
+            log.info("Loading Posts using JsonPlaceHolderService");
+            posts = jsonPlaceholderService.loadPosts();
+        }
     }
 
 }
