@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Blog Posts Lambda API
+
+Globals:
+  Function:
+    Runtime: java17
+    MemorySize: 2048
+    Timeout: 29
+
+Resources:
+  BlogPostsAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+
+  BlogPostsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dev.danvega.serverlessapi.StreamLambdaHandler
+      CodeUri: target/serverless-api-0.0.1-SNAPSHOT-lambda-package.zip
+      AutoPublishAlias: live
+      SnapStart:
+        ApplyOn: PublishedVersions
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId: !Ref BlogPostsAPI
+
+Outputs:
+  BlogPostsEndpoint:
+    Description: API Gateway Blog Posts Endpoint
+    Value:
+      Fn::Sub: https://${BlogPostsAPI}.execute-api.${AWS::Region}.amazonaws.com/prod/
